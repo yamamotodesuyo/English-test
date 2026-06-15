@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英単語タイピングクイズ (合体＆ミス特訓カウンター版)</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        .main-layout {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 450px;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            text-align: center;
+            border: 1px solid #333;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 📖 単語一覧（最初は画面外に非表示） */
+        .word-list-container {
+            position: fixed;
+            top: 0;
+            right: -360px;
+            width: 340px;
+            height: 100vh;
+            background-color: #1a1a1a;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.7);
+            border-left: 1px solid #333;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 10;
+        }
+        .word-list-container.open {
+            right: 0;
+        }
+        .word-list-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2980b9;
+            padding-bottom: 5px;
+            color: #ffffff;
+        }
+        
+        /* ❌ ミス特訓セクション（ドロワー最上部） */
+        .miss-train-box {
+            background: #2a1515;
+            border: 2px dashed #883333;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .miss-train-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 5px 0;
+        }
+        .miss-train-btn {
+            background-color: #883333;
+            font-size: 13px;
+            padding: 6px 10px;
+            margin-top: 5px;
+        }
+        .miss-train-btn:hover {
+            background-color: #aa4444;
+        }
+
+        .word-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #2a2a2a;
+            font-size: 14px;
+        }
+        .word-item .en {
+            color: #2ecc71;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .word-item .ja {
+            color: #b0b0b0;
+            margin-right: auto;
+            margin-left: 10px;
+        }
+        /* ミス回数バッジ */
+        .miss-badge {
+            background-color: #552222;
+            color: #ff8888;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            border: 1px solid #773333;
+        }
+        .day-header {
+            font-size: 13px;
+            color: #2980b9;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            background: #252525;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+        
+        /* 🚀 でかでかと目立つ巨大スタートボタン */
+        .mega-start-btn {
+            background-color: #2ecc71;
+            font-size: 22px;
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+            margin-bottom: 25px;
+        }
+        .mega-start-btn:hover {
+            background-color: #27ae60;
+        }
+
+        /* コンパクトに合体した設定セクション */
+        .compact-settings {
+            background: #252525;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: left;
+            border: 1px solid #333;
+        }
+        .compact-settings h3 {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
+        /* 小さく並べたDAY選択 */
+        .mini-checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .mini-checkbox-group label {
+            cursor: pointer;
+            font-size: 13px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #1e1e1e;
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #2d2d2d;
+        }
+        .mini-checkbox-group input[type="checkbox"] {
+            cursor: pointer;
+            margin: 0;
+        }
+
+        /* 文字なしのすっきりトグルスイッチ */
+        .switch-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        .switch-row:last-child {
+            margin-bottom: 0;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #444;
+            transition: .3s;
+            border-radius: 22px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2980b9; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        button {
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            font-weight: bold;
+        }
+        .primary-btn {
+            background-color: #2980b9;
+        }
+        .primary-btn:hover {
+            background-color: #3498db;
+        }
+        .home-btn {
+            background-color: #444;
+            margin-top: 20px;
+            font-size: 14px;
+            padding: 8px 15px;
+        }
+        .home-btn:hover {
+            background-color: #555;
+        }
+        
+        .quiz-section { display: none; }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .progress { font-size: 14px; color: #a0a0a0; }
+        .question { font-size: 28px; font-weight: bold; margin: 25px 0; color: #ffffff; }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border: 2px solid #444;
+            border-radius: 6px;
+            box-sizing: border-box;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        input[type="text"]:focus { border-color: #2980b9; }
+        .result-message { font-size: 18px; font-weight: bold; margin-top: 10px; min-height: 54px; line-height: 1.5; }
+        .correct { color: #2ecc71; }
+        .incorrect { color: #ff6b6b; }
+        .incorrect strong { color: #ffffff; background-color: #332222; padding: 2px 6px; border-radius: 4px; }
+        .hint { font-size: 14px; color: #888888; margin-top: 15px; }
+        
+        .word-list-container::-webkit-scrollbar { width: 6px; }
+        .word-list-container::-webkit-scrollbar-track { background: #1a1a1a; }
+        .word-list-container::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="main-layout">
+    <div class="container">
+        <!-- 🏠 設定＆スタート合体画面 -->
+        <div id="setup-screen">
+            <h1>英単語タイピング</h1>
+            
+            <!-- ⚡ 主役のでっかいスタートボタン -->
+            <button class="mega-start-btn" onclick="startQuiz()">クイズを始める (Enter)</button>
+            
+            <!-- ⚙️ ボタンの下にスマートにまとまった設定項目 -->
+            <div class="compact-settings">
+                <h3>範囲を選択</h3>
+                <div class="mini-checkbox-group">
+                    <label><input type="checkbox" class="range-chkbx" value="D5p1" checked onchange="updateWordList()"> D5 - p1</label>
+                    <label><input type="checkbox" class="range-chkbx" value="D5p2" checked onchange="updateWordList()"> D5 - p2</label>
+                    <label><input type="checkbox" class="range-chkbx" value="D6p1" checked onchange="updateWordList()"> D6 - p1</label>
+                    <label><input type="checkbox" class="range-chkbx" value="D6p2" checked onchange="updateWordList()"> D6 - p2</label>
+                </div>
+                
+                <div class="switch-row">
+                    <span>ランダムモードにする</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-row">
+                    <span>右側から一覧をスライド表示</span>
+                    <!-- 💡 初期状態をOFF(未チェック)に変更！ -->
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="setup-list-toggle" onchange="syncListToggle(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📝 クイズ画面 -->
+        <div id="quiz-screen" class="quiz-section">
+            <div class="quiz-header">
+                <div class="progress" id="progress-text">0 / 0</div>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #a0a0a0;">
+                    <span>一覧表示</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="quiz-list-toggle" onchange="syncListToggle(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="question" id="question-text">意味</div>
+            <input type="text" id="answer-input" autocomplete="off" placeholder="英単語を入力してEnter">
+            <div class="result-message" id="result-text"></div>
+            <button id="action-btn" class="primary-btn" onclick="handleNext()">判定 (Enter)</button>
+            <button id="home-action-btn" class="home-btn" onclick="goHome()">🏠 設定に戻る</button>
+            <div class="hint">※全問終了時や、判定後にEnterで次へ進めます</div>
+        </div>
+    </div>
+
+    <!-- 📖 単語一覧スライド（初期状態：画面外へ退避） -->
+    <div class="word-list-container" id="word-list-box">
+        
+        <!-- ❌ 一覧の最上部に君臨する「ミス特訓セクション」 -->
+        <div class="miss-train-box">
+            <div style="font-size: 12px; color: #aaa; font-weight: bold;">🔥 蓄積された総ミスライフ</div>
+            <div class="miss-train-count" id="total-miss-count">0</div>
+            <button class="miss-train-btn" id="start-miss-train-btn" onclick="startMissTraining()" style="display:none;">☠️ ミス特訓モード起動</button>
+        </div>
+
+        <div class="word-list-title">📖 対象の単語一覧</div>
+        <div id="word-list-content"></div>
+    </div>
+</div>
+
+<script>
+const wordData = {
+    D5p1: [
+        { en: "serve", ja: "～を出す" }, { en: "spread", ja: "～を広げる" },
+        { en: "guess", ja: "～を推測する" }, { en: "prefer", ja: "～が好きだ" },
+        { en: "prove", ja: "～を証明する" }, { en: "separate", ja: "～を分ける" },
+        { en: "taste", ja: "～の味がする" }, { en: "attend", ja: "～に出席する" }
+    ],
+    D5p2: [
+        { en: "hide", ja: "～を隠す" }, { en: "discuss", ja: "～を話し合う" },
+        { en: "suffer", ja: "苦しむ" }, { en: "struggle", ja: "もがく" },
+        { en: "lend", ja: "～を貸す" }, { en: "warn", ja: "～に警告する" },
+        { en: "ship", ja: "～を輸送する" }, { en: "examine", ja: "～を調査する" }
+    ],
+    D6p1: [
+        { en: "bear", ja: "～に耐える" }, { en: "cross", ja: "～を横切る" },
+        { en: "earn", ja: "を稼ぐ" }, { en: "doubt", ja: "～を疑う" },
+        { en: "sort", ja: "～分類する" }, { en: "join", ja: "～に参加する" },
+        { en: "fix", ja: "～を修理する" }, { en: "count", ja: "～を勘定に入れる" }
+    ],
+    D6p2: [
+        { en: "disappear", ja: "消える" }, { en: "remove", ja: "～を取り去る" },
+        { en: "gather", ja: "集まる" }, { en: "handle", ja: "を扱う" },
+        { en: "behave", ja: "振る舞う" }, { en: "direct", ja: "を向ける" },
+        { en: "destroy", ja: "～を破壊する" }, { en: "excape", ja: "逃げる" }
+    ]
+};
+
+const labelMap = { D5p1: "Day 5 - p1", D5p2: "Day 5 - p2", D6p1: "Day 6 - p1", D6p2: "Day 6 - p2" };
+
+let currentQuizList = [];
+let currentIndex = 0;
+let isAnswered = false;
+let currentScreen = "setup"; 
+let quizFinished = false; 
+let isMissTrainingMode = false; // 現在ミス特訓中かどうかのフラグ
+
+// ❌ 単語ごとのミス回数を管理するオブジェクト（ブラウザに永続保存）
+let missCounters = JSON.parse(localStorage.getItem('missCounters_v2')) || {};
+
+window.onload = function() {
+    // 初回起動時に全単語のカウンタを0で初期化（既存データがあれば引き継ぐ）
+    Object.keys(wordData).forEach(day => {
+        wordData[day].forEach(word => {
+            if (missCounters[word.en] === undefined) {
+                missCounters[word.en] = 0;
+            }
+        });
+    });
+    updateWordList();
+};
+
+// スライドドロワーの表示切り替え（初期値はOFF）
+function syncListToggle(isOpen) {
+    document.getElementById('setup-list-toggle').checked = isOpen;
+    document.getElementById('quiz-list-toggle').checked = isOpen;
+    
+    const wordListBox = document.getElementById('word-list-box');
+    if (isOpen) {
+        wordListBox.classList.add('open');
+    } else {
+        wordListBox.classList.remove('open');
+    }
+}
+
+// ドロワー内の単語一覧とミス回数バッジの更新
+function updateWordList() {
+    const content = document.getElementById('word-list-content');
+    content.innerHTML = "";
+    
+    let totalMissCount = 0;
+    
+    // 総ミス回数を集計
+    Object.keys(missCounters).forEach(key => {
+        totalMissCount += missCounters[key];
+    });
+    
+    document.getElementById('total-miss-count').innerText = totalMissCount;
+    const trainBtn = document.getElementById('start-miss-train-btn');
+    if (totalMissCount > 0) {
+        trainBtn.style.display = 'inline-block';
+    } else {
+        trainBtn.style.display = 'none';
+    }
+
+    const checkboxes = document.querySelectorAll('.range-chkbx');
+    let hasData = false;
+
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            hasData = true;
+            const header = document.createElement('div');
+            header.className = 'day-header';
+            header.innerText = labelMap[cb.value];
+            content.appendChild(header);
+
+            wordData[cb.value].forEach(word => {
+                const item = document.createElement('div');
+                item.className = 'word-item';
+                
+                // ミスが1回以上なら回数をバッジで表示
+                const missValue = missCounters[word.en] || 0;
+                const badgeHtml = missValue > 0 ? `<span class="miss-badge">×${missValue}</span>` : '';
+                
+                item.innerHTML = `<span class="en">${word.en}</span><span class="ja">${word.ja}</span>${badgeHtml}`;
+                content.appendChild(item);
+            });
+        }
+    });
+
+    if (!hasData) {
+        content.innerHTML = '<div style="color: #888; font-size:12px; text-align:center; margin-top:20px;">範囲が未選択です</div>';
+    }
+}
+
+// ☠️ ミス特訓モードの生成・開始
+function startMissTraining() {
+    currentQuizList = [];
+    isMissTrainingMode = true;
+
+    // 全データからミス回数が1以上のものを、その回数分だけ配列にぶち込む
+    Object.keys(wordData).forEach(day => {
+        wordData[day].forEach(word => {
+            const count = missCounters[word.en] || 0;
+            for(let i = 0; i < count; i++) {
+                currentQuizList.push({...word}); // コピーを投入
+            }
+        });
+    });
+
+    // 特訓なので強制的にシャッフル（ランダム）
+    currentQuizList.sort(() => Math.random() - 0.5);
+    
+    launchQuiz();
+}
+
+// 通常クイズの開始
+function startQuiz() {
+    currentQuizList = [];
+    isMissTrainingMode = false;
+    
+    const checkboxes = document.querySelectorAll('.range-chkbx:checked');
+    checkboxes.forEach(cb => {
+        currentQuizList = currentQuizList.concat(wordData[cb.value]);
+    });
+
+    if (currentQuizList.length === 0) {
+        alert("範囲を1つ以上選択してください！");
+        return;
+    }
+
+    const isRandom = document.getElementById('mode-toggle').checked;
+    if (isRandom) {
+        currentQuizList.sort(() => Math.random() - 0.5);
+    }
+
+    launchQuiz();
+}
+
+// クイズ画面への切り替え共通処理
+function launchQuiz() {
+    currentIndex = 0;
+    isAnswered = false;
+    quizFinished = false;
+    currentScreen = "quiz";
+    
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    document.getElementById('home-action-btn').innerText = "🏠 設定に戻る";
+    
+    showQuestion();
+}
+
+function showQuestion() {
+    isAnswered = false;
+    const currentWord = currentQuizList[currentIndex];
+    
+    document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${currentQuizList.length}`;
+    
+    // 特訓モード時はちょっと物々しい表記に
+    if (isMissTrainingMode) {
+        document.getElementById('question-text').innerHTML = `<span style="font-size:14px; color:#ff6b6b; display:block; margin-bottom:5px;">⚠️ミス特訓</span>${currentWord.ja}`;
+    } else {
+        document.getElementById('question-text').innerText = currentWord.ja;
+    }
+    
+    const inputField = document.getElementById('answer-input');
+    inputField.style.display = 'block';
+    inputField.value = "";
+    inputField.focus();
+    
+    document.getElementById('result-text').innerHTML = "";
+    document.getElementById('action-btn').innerText = "判定 (Enter)";
+}
+
+function handleNext() {
+    if (quizFinished) {
+        goHome();
+        return;
+    }
+
+    const inputField = document.getElementById('answer-input');
+    const resultText = document.getElementById('result-text');
+    const actionBtn = document.getElementById('action-btn');
+    const currentWord = currentQuizList[currentIndex];
+
+    if (!isAnswered) {
+        // 【1回目Enter：判定】
+        const userAnswer = inputField.value.trim().toLowerCase();
+        const correctAnswer = currentWord.en.toLowerCase();
+
+        if (userAnswer === correctAnswer) {
+            resultText.innerHTML = '<span class="correct">⭕ 正解！</span>';
+            
+            // 正解した場合、ミスライフを1ポイント消費！
+            if (missCounters[currentWord.en] > 0) {
+                missCounters[currentWord.en]--;
+                localStorage.setItem('missCounters_v2', JSON.stringify(missCounters));
+            }
+        } else {
+            resultText.innerHTML = `<span class="incorrect">❌ 不正解...</span><br><span style="color: #b0b0b0;">正解:</span> <strong>${currentWord.en}</strong>`;
+            
+            // 間違えたらミスライフが蓄積 (+1)
+            if (missCounters[currentWord.en] === undefined) {
+                missCounters[currentWord.en] = 0;
+            }
+            missCounters[currentWord.en]++;
+            localStorage.setItem('missCounters_v2', JSON.stringify(missCounters));
+        }
+
+        actionBtn.innerText = "次へ進む (Enter)";
+        isAnswered = true;
+        updateWordList(); // リアルタイムにドロワーのバッジを更新
+    } else {
+        // 【2回目Enter：次へ】
+        currentIndex++;
+        if (currentIndex < currentQuizList.length) {
+            showQuestion();
+        } else {
+            quizFinished = true;
+            inputField.style.display = 'none';
+            document.getElementById('question-text').innerText = "🎉 終了！";
+            resultText.innerHTML = isMissTrainingMode 
+                ? "特訓お疲れ様でした！ミスを削り落とせましたね！<br><span style='font-size:14px; color:#aaa;'>Enterでホームへ戻ります。</span>"
+                : "全問終了しました！<br><span style='font-size:14px; color:#aaa;'>Enterでホームへ戻ります。</span>";
+            actionBtn.innerText = "設定画面に戻る (Enter)";
+            actionBtn.focus();
+        }
+    }
+}
+
+function goHome() {
+    currentScreen = "setup";
+    updateWordList();
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'block';
+}
+
+// ⌨️ Enterキーのコントロール
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        if (currentScreen === "setup") {
+            e.preventDefault();
+            startQuiz();
+        } else if (currentScreen === "quiz") {
+            e.preventDefault();
+            handleNext();
+        }
+    }
+});
+</script>
+
+</body>
+</html>
+</html>
