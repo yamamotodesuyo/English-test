@@ -22,7 +22,7 @@
             display: flex;
             justify-content: center;
             width: 100%;
-            max-width: 480px;
+            max-width: 500px;
         }
         .container {
             background-color: #1e1e1e;
@@ -114,7 +114,7 @@
 
         h1 { font-size: 24px; margin-bottom: 25px; color: #ffffff; letter-spacing: 1px; }
         
-        /* 🚀 縦棒を消してスッキリした「スタート」ボタン */
+        /* 🚀 縦線を消してスッキリさせた「スタート」ボタン */
         .mega-start-btn {
             background-color: #2ecc71;
             font-size: 24px;
@@ -216,7 +216,7 @@
                 <div class="ideal-line">
                     <label><input type="radio" name="quiz-mode" value="normal" checked> 順番通り</label>
                     <label><input type="radio" name="quiz-mode" value="random"> ランダム</label>
-                    <label style="color: #e67e22; font-weight: bold;"><input type="radio" name="quiz-mode" value="japan-input"> 日本語入力</label>
+                    <label style="color: #e67e22; font-weight: bold;"><input type="radio" name="quiz-mode" value="japanMode"> New! 日本語入力</label>
                     <label style="color: #3498db; font-weight: bold;"><input type="radio" name="quiz-mode" value="choice"> 4択</label>
                 </div>
 
@@ -226,7 +226,7 @@
                     <label><input type="checkbox" class="range-chkbx" value="Day6" checked onchange="updateWordList()"> Day 6</label>
                 </div>
                 
-                <div class="ideal-line" style="border-top: 1px solid #333; padding-top: 12px; font-size: 12px; color: #888;">
+                <div class="ideal-line" style="border-top: 1px solid #333; padding-top: 12px; font-size: 11px; color: #888;">
                     <span>右側から単語一覧をスライド表示する</span>
                     <label class="toggle-switch">
                         <input type="checkbox" id="setup-list-toggle" onchange="syncListToggle(this.checked)">
@@ -257,7 +257,7 @@
             <div class="result-message" id="result-text"></div>
             <button id="action-btn" class="primary-btn" onclick="handleNext()">判定 (Enter)</button>
             <button id="home-action-btn" class="home-btn" onclick="goHome()">🏠 設定に戻る</button>
-            <div class="hint" id="quiz-hint-text">Enterで進めます</div>
+            <div class="hint" id="quiz-hint-text">Enterで進みます</div>
         </div>
     </div>
 
@@ -308,7 +308,7 @@ let isAnswered = false;
 let currentScreen = "setup"; 
 let quizFinished = false; 
 let isMissTrainingMode = false; 
-let activeMode = "normal"; // "normal", "random", "japan-input", "choice"
+let activeMode = "normal"; // "normal", "random", "japanMode", "choice"
 let currentChoices = [];
 
 let missCounters = JSON.parse(localStorage.getItem('missCounters_v5')) || {};
@@ -386,8 +386,8 @@ function startMissTraining() {
     isMissTrainingMode = true;
     
     const selectedMode = document.querySelector('input[name="quiz-mode"]:checked').value;
-    // 日本語入力か4択であればそれを維持、通常のタイピングならランダム(シャッフル)にする
-    activeMode = (selectedMode === "choice" || selectedMode === "japan-input") ? selectedMode : "random";
+    // 日本語入力中なら日本語入力のまま、それ以外(通常・ランダム・4択)ならランダムにする
+    activeMode = (selectedMode === "japanMode" || selectedMode === "choice") ? selectedMode : "random";
 
     Object.keys(wordData).forEach(day => {
         wordData[day].forEach(word => {
@@ -413,7 +413,7 @@ function startQuiz() {
     }
     
     if (activeMode !== "normal") {
-        currentQuizList.sort(() => Math.random() - 0.5); // 順番通り以外はすべてシャッフル
+        currentQuizList.sort(() => Math.random() - 0.5);
     }
 
     launchQuiz();
@@ -439,29 +439,31 @@ function showQuestion() {
     document.getElementById('action-btn').innerText = activeMode !== 'choice' ? "判定 (Enter)" : "スキップする (Enter)";
 
     if (activeMode === "normal" || activeMode === "random") {
-        // ⌨️ 英語タイピング系モード (問題: 日本語 ➔ 解答: 英語)
+        // ⌨️ 通常の英単語タイピング
         inputField.style.display = 'block';
         choicesContainer.style.display = 'none';
         inputField.placeholder = "英単語を入力してEnter";
         hintText.innerText = "※判定後も打てます。もう一度Enterで次へ";
         
-        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (英タイピング) " : "";
+        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (英語入力) " : "";
         document.getElementById('question-text').innerText = prefix + currentWord.ja;
         inputField.value = "";
         inputField.focus();
-    } else if (activeMode === "japan-input") {
-        // ⌨️ 日本語入力モード (問題: 英語 ➔ 解答: 日本語)
+        
+    } else if (activeMode === "japanMode") {
+        // ⌨️ New! 日本語タイピングモード
         inputField.style.display = 'block';
         choicesContainer.style.display = 'none';
         inputField.placeholder = "日本語の意味を入力してEnter";
-        hintText.innerText = "※多少の記号や文字のブレは自動で優しく判定されます";
+        hintText.innerText = "※「～」や「...」などの記号は省略して入力しても正解になります";
         
-        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (日入力) " : "";
+        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (日本語入力) " : "";
         document.getElementById('question-text').innerText = prefix + currentWord.en;
         inputField.value = "";
         inputField.focus();
-    } else {
-        // 🔢 4択モード (問題: 英語 ➔ 解答: ボタン選択)
+        
+    } else if (activeMode === "choice") {
+        // 🔢 4択モード
         inputField.style.display = 'none';
         choicesContainer.style.display = 'grid';
         hintText.innerText = "※正しい日本語を選んでください (数字キー1〜4でも選べます)";
@@ -524,9 +526,9 @@ function selectChoice(index) {
     updateWordList();
 }
 
-// 日本語のブレを吸収するお助け関数
+// 日本語の判定を優しくする補助関数 (～ や ... やスペース、大文字小文字を除去)
 function cleanJapanese(str) {
-    return str.replace(/[～~〜、。，．,.\s]/g, "").trim();
+    return str.replace(/[～…\.]/g, "").replace(/\s+/g, "").trim();
 }
 
 function handleNext() {
@@ -537,19 +539,18 @@ function handleNext() {
     const currentWord = currentQuizList[currentIndex];
 
     if (activeMode !== "choice") {
-        // 【記述タイピング回答の判定処理 (英語 or 日本語)】
+        // タイピング判定（英語 or 日本語）
         if (!isAnswered) {
             let isCorrect = false;
             const userAnswer = inputField.value.trim();
 
-            if (activeMode === "japan-input") {
-                // 🇯🇵 日本語入力モードの判定 (お助け判定を通す)
-                const targetCorrect = cleanJapanese(currentWord.ja);
-                const targetUser = cleanJapanese(userAnswer);
-                // 完全に一致するか、正解の言葉が含まれていればOKにする
-                isCorrect = (targetUser !== "" && (targetCorrect === targetUser || targetCorrect.includes(targetUser) || targetUser.includes(targetCorrect)));
+            if (activeMode === "japanMode") {
+                // 日本語入力モードの判定
+                const cleanUser = cleanJapanese(userAnswer);
+                const cleanCorrect = cleanJapanese(currentWord.ja);
+                isCorrect = (cleanUser === cleanCorrect);
             } else {
-                // 🇬🇧 英語タイピングモードの判定
+                // 通常・ランダム（英語入力）の判定
                 isCorrect = (userAnswer.toLowerCase() === currentWord.en.toLowerCase());
             }
 
@@ -560,7 +561,8 @@ function handleNext() {
                     localStorage.setItem('missCounters_v5', JSON.stringify(missCounters));
                 }
             } else {
-                resultText.innerHTML = `<span class="incorrect">❌ 不正解...</span><br><span style="color: #b0b0b0;">正解:</span> <strong>${activeMode === 'japan-input' ? currentWord.ja : currentWord.en}</strong>`;
+                const answerDisplay = activeMode === "japanMode" ? currentWord.ja : currentWord.en;
+                resultText.innerHTML = `<span class="incorrect">❌ 不正解...</span><br><span style="color: #b0b0b0;">正解:</span> <strong>${answerDisplay}</strong>`;
                 if (missCounters[currentWord.en] === undefined) missCounters[currentWord.en] = 0;
                 missCounters[currentWord.en]++;
                 localStorage.setItem('missCounters_v5', JSON.stringify(missCounters));
@@ -572,7 +574,7 @@ function handleNext() {
             advanceQuiz();
         }
     } else {
-        // 【4択モードのEnter(スキップ)】
+        // 4択時のスキップ処理
         if (!isAnswered) {
             isAnswered = true;
             resultText.innerHTML = `<span class="incorrect">⏭️ スキップ（ミス+1）</span>`;
