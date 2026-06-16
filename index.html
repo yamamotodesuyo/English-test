@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英単語クイズ (4択クイズ＆ミスリセット搭載版)</title>
+    <title>英単語クイズ (理想のUI再現版)</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -22,7 +22,7 @@
             display: flex;
             justify-content: center;
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
         }
         .container {
             background-color: #1e1e1e;
@@ -88,8 +88,6 @@
             border-radius: 4px;
         }
         .miss-train-btn:hover { background-color: #aa4444; }
-        
-        /* 🔄 ミスリセットボタン */
         .miss-reset-btn {
             background-color: #444;
             font-size: 11px;
@@ -114,69 +112,55 @@
         .miss-badge { background-color: #552222; color: #ff8888; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 1px solid #773333; }
         .day-header { font-size: 13px; color: #2980b9; font-weight: bold; margin-top: 15px; margin-bottom: 5px; background: #252525; padding: 4px 8px; border-radius: 4px; }
 
-        h1 { font-size: 26px; margin-bottom: 25px; color: #ffffff; letter-spacing: 1px; }
+        h1 { font-size: 24px; margin-bottom: 25px; color: #ffffff; letter-spacing: 1px; }
         
+        /* 🚀 でかでかと君臨する「スタート」ボタン */
         .mega-start-btn {
             background-color: #2ecc71;
-            font-size: 22px;
-            padding: 18px;
+            font-size: 24px;
+            padding: 16px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
             margin-bottom: 25px;
+            letter-spacing: 2px;
         }
         .mega-start-btn:hover { background-color: #27ae60; }
 
-        .compact-settings {
-            background: #252525;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: left;
-            border: 1px solid #333;
-        }
-        .compact-settings h3 { margin: 0 0 8px 0; font-size: 13px; color: #888; text-transform: uppercase; }
-        
-        .mini-checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-        .mini-checkbox-group label {
-            cursor: pointer; font-size: 13px; color: #ccc; display: flex; align-items: center; gap: 6px; background: #1e1e1e; padding: 6px 10px; border-radius: 4px; border: 1px solid #2d2d2d;
-        }
-
-        /* 🕹️ クイズ形式を選ぶモードセレクトボタン */
-        .mode-select-container {
+        /* 🛠️ ご提案の横並び設定用スタイル */
+        .ideal-row-settings {
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 15px;
+            background: #252525;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            text-align: left;
             margin-bottom: 15px;
         }
-        .mode-btn {
-            flex: 1;
-            background-color: #333;
-            border: 2px solid #444;
-            padding: 10px;
+        .ideal-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
             font-size: 14px;
-            color: #aaa;
-            border-radius: 6px;
+            color: #ddd;
+        }
+        .ideal-line label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            user-select: none;
+        }
+        /* ラジオボタンとチェックボックスの見た目調整 */
+        .ideal-line input[type="radio"], .ideal-line input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
             margin: 0;
         }
-        .mode-btn.active {
-            background-color: #2980b9;
-            border-color: #3498db;
-            color: #fff;
-            box-shadow: 0 0 10px rgba(41, 128, 185, 0.4);
-        }
-
-        .switch-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #ccc; margin-bottom: 10px; }
-        .switch-row:last-child { margin-bottom: 0; }
-        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 22px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .3s; border-radius: 22px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: #2980b9; }
-        input:checked + .slider:before { transform: translateX(22px); }
 
         button { color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; transition: background 0.2s; font-weight: bold; }
         .primary-btn { background-color: #2980b9; }
@@ -189,22 +173,10 @@
         .progress { font-size: 14px; color: #a0a0a0; }
         .question { font-size: 28px; font-weight: bold; margin: 25px 0; color: #ffffff; }
         
-        /* 🔢 4択クイズの選択肢ボタン用スタイル */
-        .choices-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
+        /* 4択ボタン */
+        .choices-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
         .choice-btn {
-            background-color: #2a2a2a;
-            border: 2px solid #444;
-            text-align: left;
-            padding: 14px 20px;
-            font-size: 16px;
-            color: #e0e0e0;
-            border-radius: 8px;
-            transition: all 0.2s;
+            background-color: #2a2a2a; border: 2px solid #444; text-align: left; padding: 14px 20px; font-size: 16px; color: #e0e0e0; border-radius: 8px; transition: all 0.2s;
         }
         .choice-btn:hover { background-color: #333; border-color: #555; }
         .choice-btn.selected-correct { background-color: #1b4d22 !important; border-color: #2ecc71 !important; color: #2ecc71; }
@@ -223,43 +195,40 @@
         .word-list-container::-webkit-scrollbar { width: 6px; }
         .word-list-container::-webkit-scrollbar-track { background: #1a1a1a; }
         .word-list-container::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        
+        /* 一覧のON/OFF用トグルスイッチ（クイズ画面用） */
+        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .3s; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2980b9; }
+        input:checked + .slider:before { transform: translateX(22px); }
     </style>
 </head>
 <body>
 
 <div class="main-layout">
     <div class="container">
-        <!-- 🏠 設定＆スタート画面 -->
         <div id="setup-screen">
             <h1>英単語クイズ</h1>
             
-            <button class="mega-start-btn" onclick="startQuiz()">クイズを始める (Enter)</button>
+            <button class="mega-start-btn" onclick="startQuiz()">｜スタート｜ (Enter)</button>
             
-            <div class="compact-settings">
-                <h3>① クイズ形式を選択</h3>
-                <div class="mode-select-container">
-                    <button id="btn-mode-type" class="mode-btn active" onclick="setQuizFormat('typing')">⌨️ タイピング</button>
-                    <button id="btn-mode-choice" class="mode-btn" onclick="setQuizFormat('choice')">🔢 4択クイズ</button>
+            <div class="ideal-row-settings">
+                <div class="ideal-line">
+                    <label><input type="radio" name="quiz-mode" value="normal" checked> 順番通り</label>
+                    <label><input type="radio" name="quiz-mode" value="random"> ランダム</label>
+                    <label style="color: #3498db; font-weight: bold;"><input type="radio" name="quiz-mode" value="choice"> New! 4択</label>
                 </div>
 
-                <h3>② 範囲を選択</h3>
-                <div class="mini-checkbox-group">
-                    <label><input type="checkbox" class="range-chkbx" value="D5p1" checked onchange="updateWordList()"> D5 - p1</label>
-                    <label><input type="checkbox" class="range-chkbx" value="D5p2" checked onchange="updateWordList()"> D5 - p2</label>
-                    <label><input type="checkbox" class="range-chkbx" value="D6p1" checked onchange="updateWordList()"> D6 - p1</label>
-                    <label><input type="checkbox" class="range-chkbx" value="D6p2" checked onchange="updateWordList()"> D6 - p2</label>
+                <div class="ideal-line" style="border-top: 1px solid #333; padding-top: 12px;">
+                    <span>範囲:</span>
+                    <label><input type="checkbox" class="range-chkbx" value="Day5" checked onchange="updateWordList()"> Day 5</label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day6" checked onchange="updateWordList()"> Day 6</label>
                 </div>
                 
-                <div class="switch-row">
-                    <span>ランダムモードにする</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="mode-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="switch-row">
-                    <span>右側から一覧をスライド表示</span>
+                <div class="ideal-line" style="border-top: 1px solid #333; padding-top: 12px; font-size: 12px; color: #888;">
+                    <span>右側から単語一覧をスライド表示する</span>
                     <label class="toggle-switch">
                         <input type="checkbox" id="setup-list-toggle" onchange="syncListToggle(this.checked)">
                         <span class="slider"></span>
@@ -268,7 +237,6 @@
             </div>
         </div>
 
-        <!-- 📝 クイズ画面 -->
         <div id="quiz-screen" class="quiz-section">
             <div class="quiz-header">
                 <div class="progress" id="progress-text">0 / 0</div>
@@ -281,23 +249,19 @@
                 </div>
             </div>
             
-            <!-- 問題テキスト (タイピング時は日本語、4択時は英語が入ります) -->
             <div class="question" id="question-text">意味</div>
             
-            <!-- ⌨️ タイピング用の入力ボックス -->
             <input type="text" id="answer-input" autocomplete="off" placeholder="英単語を入力してEnter">
             
-            <!-- 🔢 4択クイズ用のボタンコンテナ -->
             <div id="choices-container" class="choices-grid" style="display: none;"></div>
             
             <div class="result-message" id="result-text"></div>
             <button id="action-btn" class="primary-btn" onclick="handleNext()">判定 (Enter)</button>
             <button id="home-action-btn" class="home-btn" onclick="goHome()">🏠 設定に戻る</button>
-            <div class="hint" id="quiz-hint-text">※判定後も打てます。もう一度Enterで次へ</div>
+            <div class="hint" id="quiz-hint-text">Enterで進みます</div>
         </div>
     </div>
 
-    <!-- 📖 単語一覧スライド -->
     <div class="word-list-container" id="word-list-box">
         
         <div class="miss-train-box">
@@ -305,7 +269,6 @@
             <div class="miss-train-count" id="total-miss-count">0</div>
             <button class="miss-train-btn" id="start-miss-train-btn" onclick="startMissTraining()" style="display:none;">☠️ ミス特訓モード起動</button>
             <br>
-            <!-- 🔄 ミスリセットボタン -->
             <button class="miss-reset-btn" onclick="resetMissCounters()">🔄 データをクリア</button>
         </div>
 
@@ -315,26 +278,23 @@
 </div>
 
 <script>
+// Dayごとにデータを統合
 const wordData = {
-    D5p1: [
+    Day5: [
         { en: "serve", ja: "～を出す" }, { en: "spread", ja: "～を広げる" },
         { en: "guess", ja: "～を推測する" }, { en: "prefer", ja: "～が好きだ" },
         { en: "prove", ja: "～を証明する" }, { en: "separate", ja: "～を分ける" },
-        { en: "taste", ja: "～の味がする" }, { en: "attend", ja: "～に出席する" }
-    ],
-    D5p2: [
+        { en: "taste", ja: "～の味がする" }, { en: "attend", ja: "～に出席する" },
         { en: "hide", ja: "～を隠す" }, { en: "discuss", ja: "～を話し合う" },
         { en: "suffer", ja: "苦しむ" }, { en: "struggle", ja: "もがく" },
         { en: "lend", ja: "～を貸す" }, { en: "warn", ja: "～に警告する" },
         { en: "ship", ja: "～を輸送する" }, { en: "examine", ja: "～を調査する" }
     ],
-    D6p1: [
+    Day6: [
         { en: "bear", ja: "～に耐える" }, { en: "cross", ja: "～を横切る" },
         { en: "earn", ja: "を稼ぐ" }, { en: "doubt", ja: "～を疑う" },
         { en: "sort", ja: "～分類する" }, { en: "join", ja: "～に参加する" },
-        { en: "fix", ja: "～を修理する" }, { en: "count", ja: "～を勘定に入れる" }
-    ],
-    D6p2: [
+        { en: "fix", ja: "～を修理する" }, { en: "count", ja: "～を勘定に入れる" },
         { en: "disappear", ja: "消える" }, { en: "remove", ja: "～を取り去る" },
         { en: "gather", ja: "集まる" }, { en: "handle", ja: "を扱う" },
         { en: "behave", ja: "振る舞う" }, { en: "direct", ja: "を向ける" },
@@ -342,10 +302,7 @@ const wordData = {
     ]
 };
 
-// ダミー選択肢作成用の全日本語リスト
 const allJaMeanings = Object.values(wordData).flat().map(w => w.ja);
-
-const labelMap = { D5p1: "Day 5 - p1", D5p2: "Day 5 - p2", D6p1: "Day 6 - p1", D6p2: "Day 6 - p2" };
 
 let currentQuizList = [];
 let currentIndex = 0;
@@ -353,10 +310,10 @@ let isAnswered = false;
 let currentScreen = "setup"; 
 let quizFinished = false; 
 let isMissTrainingMode = false; 
-let quizFormat = "typing"; // "typing" または "choice"
-let currentChoices = []; // 4択クイズの現在の選択肢リスト
+let activeMode = "normal"; // "normal", "random", "choice"
+let currentChoices = [];
 
-let missCounters = JSON.parse(localStorage.getItem('missCounters_v3')) || {};
+let missCounters = JSON.parse(localStorage.getItem('missCounters_v4')) || {};
 
 window.onload = function() {
     initMissCounters();
@@ -366,28 +323,18 @@ window.onload = function() {
 function initMissCounters() {
     Object.keys(wordData).forEach(day => {
         wordData[day].forEach(word => {
-            if (missCounters[word.en] === undefined) {
-                missCounters[word.en] = 0;
-            }
+            if (missCounters[word.en] === undefined) missCounters[word.en] = 0;
         });
     });
 }
 
-// 🔄 ミスカウンターをすべて0にする関数
 function resetMissCounters() {
     if (confirm("これまでの累計ミスデータをリセットしてよろしいですか？")) {
         missCounters = {};
         initMissCounters();
-        localStorage.setItem('missCounters_v3', JSON.stringify(missCounters));
+        localStorage.setItem('missCounters_v4', JSON.stringify(missCounters));
         updateWordList();
     }
-}
-
-// クイズ形式の選択切り替え
-function setQuizFormat(format) {
-    quizFormat = format;
-    document.getElementById('btn-mode-type').classList.toggle('active', format === 'typing');
-    document.getElementById('btn-mode-choice').classList.toggle('active', format === 'choice');
 }
 
 function syncListToggle(isOpen) {
@@ -417,7 +364,7 @@ function updateWordList() {
             hasData = true;
             const header = document.createElement('div');
             header.className = 'day-header';
-            header.innerText = labelMap[cb.value];
+            header.innerText = cb.value === "Day5" ? "Day 5 (全32語)" : "Day 6 (全32語)";
             content.appendChild(header);
 
             wordData[cb.value].forEach(word => {
@@ -439,6 +386,11 @@ function updateWordList() {
 function startMissTraining() {
     currentQuizList = [];
     isMissTrainingMode = true;
+    
+    // 現在選択されているラジオボタンのモード（タイピングか4択か）を判定
+    const selectedMode = document.querySelector('input[name="quiz-mode"]:checked').value;
+    activeMode = (selectedMode === "choice") ? "choice" : "random"; // 特訓はシャッフル強制
+
     Object.keys(wordData).forEach(day => {
         wordData[day].forEach(word => {
             const count = missCounters[word.en] || 0;
@@ -452,14 +404,21 @@ function startMissTraining() {
 function startQuiz() {
     currentQuizList = [];
     isMissTrainingMode = false;
+    
+    // ラジオボタンの選択値を取得
+    activeMode = document.querySelector('input[name="quiz-mode"]:checked').value;
+
     const checkboxes = document.querySelectorAll('.range-chkbx:checked');
     checkboxes.forEach(cb => { currentQuizList = currentQuizList.concat(wordData[cb.value]); });
 
     if (currentQuizList.length === 0) {
         alert("範囲を1つ以上選択してください！"); return;
     }
-    const isRandom = document.getElementById('mode-toggle').checked;
-    if (isRandom) currentQuizList.sort(() => Math.random() - 0.5);
+    
+    // ランダムまたは4択モードならシャッフルする
+    if (activeMode === "random" || activeMode === "choice") {
+        currentQuizList.sort(() => Math.random() - 0.5);
+    }
 
     launchQuiz();
 }
@@ -481,55 +440,41 @@ function showQuestion() {
     const choicesContainer = document.getElementById('choices-container');
     const hintText = document.getElementById('quiz-hint-text');
     document.getElementById('result-text').innerHTML = "";
-    document.getElementById('action-btn').innerText = quizFormat === 'typing' ? "判定 (Enter)" : "スキップする (Enter)";
+    document.getElementById('action-btn').innerText = activeMode !== 'choice' ? "判定 (Enter)" : "スキップする (Enter)";
 
-    if (quizFormat === "typing") {
-        // ⌨️ タイピングモード
+    if (activeMode !== "choice") {
+        // ⌨️ タイピング系モード
         inputField.style.display = 'block';
         choicesContainer.style.display = 'none';
         hintText.innerText = "※判定後も打てます。もう一度Enterで次へ";
         
-        if (isMissTrainingMode) {
-            document.getElementById('question-text').innerHTML = `<span style="font-size:14px; color:#ff6b6b; display:block; margin-bottom:5px;">⚠️ミス特訓 (タイピング)</span>${currentWord.ja}`;
-        } else {
-            document.getElementById('question-text').innerText = currentWord.ja;
-        }
+        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (タイピング) " : "";
+        document.getElementById('question-text').innerText = prefix + currentWord.ja;
         inputField.value = "";
         inputField.focus();
     } else {
-        // 🔢 4選択モード
+        // 🔢 4択モード
         inputField.style.display = 'none';
         choicesContainer.style.display = 'grid';
         hintText.innerText = "※正しい日本語を選んでください (数字キー1〜4でも選べます)";
         
-        if (isMissTrainingMode) {
-            document.getElementById('question-text').innerHTML = `<span style="font-size:14px; color:#ff6b6b; display:block; margin-bottom:5px;">⚠️ミス特訓 (4択)</span>${currentWord.en}`;
-        } else {
-            document.getElementById('question-text').innerText = currentWord.en;
-        }
+        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (4択) " : "";
+        document.getElementById('question-text').innerText = prefix + currentWord.en;
         
-        // 4択の選択肢を生成
         generateChoices(currentWord.ja);
     }
 }
 
-// 4択クイズのダミー選択肢をランダム生成する関数
 function generateChoices(correctJa) {
     let choices = [correctJa];
     let filteredJa = allJaMeanings.filter(ja => ja !== correctJa);
-    
-    // ランダムに3つのダミーを抽出
     filteredJa.sort(() => Math.random() - 0.5);
-    for (let i = 0; i < 3; i++) {
-        if (filteredJa[i]) choices.push(filteredJa[i]);
-    }
-    // 選択肢をさらにシャッフル
+    for (let i = 0; i < 3; i++) { if (filteredJa[i]) choices.push(filteredJa[i]); }
     choices.sort(() => Math.random() - 0.5);
     currentChoices = choices;
 
     const container = document.getElementById('choices-container');
     container.innerHTML = "";
-    
     choices.forEach((choice, index) => {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
@@ -540,57 +485,45 @@ function generateChoices(correctJa) {
     });
 }
 
-// 4択ボタンが押された時の処理
 function selectChoice(index) {
     if (isAnswered) return;
-    
     isAnswered = true;
     const currentWord = currentQuizList[currentIndex];
     const selectedJa = currentChoices[index];
     const resultText = document.getElementById('result-text');
     const actionBtn = document.getElementById('action-btn');
-
-    // すべてのボタンのスタイルを一度ニュートラルに
     const buttons = document.querySelectorAll('.choice-btn');
     
     if (selectedJa === currentWord.ja) {
-        // ⭕ 正解
         document.getElementById(`choice-${index}`).classList.add('selected-correct');
         resultText.innerHTML = '<span class="correct">⭕ 正解！</span>';
         if (missCounters[currentWord.en] > 0) {
             missCounters[currentWord.en]--;
-            localStorage.setItem('missCounters_v3', JSON.stringify(missCounters));
+            localStorage.setItem('missCounters_v4', JSON.stringify(missCounters));
         }
     } else {
-        // ❌ 不正解
         document.getElementById(`choice-${index}`).classList.add('selected-incorrect');
         resultText.innerHTML = `<span class="incorrect">❌ 不正解...</span>`;
-        
-        // 正解のボタンを緑色にハイライト
         buttons.forEach((btn, idx) => {
-            if (currentChoices[idx] === currentWord.ja) {
-                btn.classList.add('selected-correct');
-            }
+            if (currentChoices[idx] === currentWord.ja) btn.classList.add('selected-correct');
         });
 
         if (missCounters[currentWord.en] === undefined) missCounters[currentWord.en] = 0;
         missCounters[currentWord.en]++;
-        localStorage.setItem('missCounters_v3', JSON.stringify(missCounters));
+        localStorage.setItem('missCounters_v4', JSON.stringify(missCounters));
     }
-
     actionBtn.innerText = "次へ進む (Enter)";
     updateWordList();
 }
 
 function handleNext() {
     if (quizFinished) { goHome(); return; }
-
     const inputField = document.getElementById('answer-input');
     const resultText = document.getElementById('result-text');
     const actionBtn = document.getElementById('action-btn');
     const currentWord = currentQuizList[currentIndex];
 
-    if (quizFormat === "typing") {
+    if (activeMode !== "choice") {
         if (!isAnswered) {
             const userAnswer = inputField.value.trim().toLowerCase();
             const correctAnswer = currentWord.en.toLowerCase();
@@ -599,13 +532,13 @@ function handleNext() {
                 resultText.innerHTML = '<span class="correct">⭕ 正解！</span>';
                 if (missCounters[currentWord.en] > 0) {
                     missCounters[currentWord.en]--;
-                    localStorage.setItem('missCounters_v3', JSON.stringify(missCounters));
+                    localStorage.setItem('missCounters_v4', JSON.stringify(missCounters));
                 }
             } else {
                 resultText.innerHTML = `<span class="incorrect">❌ 不正解...</span><br><span style="color: #b0b0b0;">正解:</span> <strong>${currentWord.en}</strong>`;
                 if (missCounters[currentWord.en] === undefined) missCounters[currentWord.en] = 0;
                 missCounters[currentWord.en]++;
-                localStorage.setItem('missCounters_v3', JSON.stringify(missCounters));
+                localStorage.setItem('missCounters_v4', JSON.stringify(missCounters));
             }
             actionBtn.innerText = "次へ進む (Enter)";
             isAnswered = true;
@@ -614,18 +547,16 @@ function handleNext() {
             advanceQuiz();
         }
     } else {
-        // 4択モード時のEnterキー処理
         if (!isAnswered) {
-            // 未回答でEnterが押されたら強制スキップ(不正解扱い)
             isAnswered = true;
-            resultText.innerHTML = `<span class="incorrect">⏭️ スキップしました（ミス+1）</span>`;
+            resultText.innerHTML = `<span class="incorrect">⏭️ スキップ（ミス+1）</span>`;
             const buttons = document.querySelectorAll('.choice-btn');
             buttons.forEach((btn, idx) => {
                 if (currentChoices[idx] === currentWord.ja) btn.classList.add('selected-correct');
             });
             if (missCounters[currentWord.en] === undefined) missCounters[currentWord.en] = 0;
             missCounters[currentWord.en]++;
-            localStorage.setItem('missCounters_v3', JSON.stringify(missCounters));
+            localStorage.setItem('missCounters_v4', JSON.stringify(missCounters));
             actionBtn.innerText = "次へ進む (Enter)";
             updateWordList();
         } else {
@@ -665,8 +596,7 @@ window.addEventListener('keydown', function(e) {
             e.preventDefault(); handleNext();
         }
     }
-    // 4択モードの時、テンキーや数字キー[1][2][3][4]で選択できるようにする
-    if (currentScreen === "quiz" && quizFormat === "choice" && !isAnswered) {
+    if (currentScreen === "quiz" && activeMode === "choice" && !isAnswered) {
         if (['1', '2', '3', '4'].includes(e.key)) {
             e.preventDefault();
             selectChoice(parseInt(e.key) - 1);
