@@ -36,6 +36,23 @@
             position: relative;
             z-index: 1;
         }
+
+        /* ↗️ 右上常時表示の単語一覧トグル */
+        .top-right-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #aaa;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            z-index: 5;
+        }
         
         /* 📖 単語一覧スライド */
         .word-list-container {
@@ -64,40 +81,6 @@
             padding-bottom: 5px;
             color: #ffffff;
         }
-        
-        /* ❌ ミス特訓セクション */
-        .miss-train-box {
-            background: #2a1515;
-            border: 2px dashed #883333;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .miss-train-count {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff6b6b;
-            margin: 5px 0;
-        }
-        .miss-train-btn {
-            background-color: #883333;
-            font-size: 13px;
-            padding: 6px 10px;
-            margin-top: 5px;
-            border-radius: 4px;
-        }
-        .miss-train-btn:hover { background-color: #aa4444; }
-        .miss-reset-btn {
-            background-color: #444;
-            font-size: 11px;
-            padding: 4px 8px;
-            margin-top: 8px;
-            border-radius: 4px;
-            display: inline-block;
-            width: auto;
-        }
-        .miss-reset-btn:hover { background-color: #555; }
 
         .word-item {
             display: flex;
@@ -109,12 +92,10 @@
         }
         .word-item .en { color: #2ecc71; font-weight: bold; font-family: 'Courier New', Courier, monospace; }
         .word-item .ja { color: #b0b0b0; margin-right: auto; margin-left: 10px; }
-        .miss-badge { background-color: #552222; color: #ff8888; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 1px solid #773333; }
         .day-header { font-size: 13px; color: #2980b9; font-weight: bold; margin-top: 15px; margin-bottom: 5px; background: #252525; padding: 4px 8px; border-radius: 4px; }
 
-        h1 { font-size: 24px; margin-bottom: 25px; color: #ffffff; letter-spacing: 1px; }
+        h1 { font-size: 24px; margin-bottom: 25px; margin-top: 10px; color: #ffffff; letter-spacing: 1px; }
         
-        /* 🚀 縦線を消してスッキリさせた「スタート」ボタン */
         .mega-start-btn {
             background-color: #2ecc71;
             font-size: 24px;
@@ -126,7 +107,6 @@
         }
         .mega-start-btn:hover { background-color: #27ae60; }
 
-        /* 横並び設定用スタイル */
         .ideal-row-settings {
             display: flex;
             flex-direction: column;
@@ -168,11 +148,10 @@
         .home-btn:hover { background-color: #555; }
         
         .quiz-section { display: none; }
-        .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; margin-top: 15px; }
         .progress { font-size: 14px; color: #a0a0a0; }
         .question { font-size: 28px; font-weight: bold; margin: 25px 0; color: #ffffff; }
         
-        /* 4択ボタン */
         .choices-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
         .choice-btn {
             background-color: #2a2a2a; border: 2px solid #444; text-align: left; padding: 14px 20px; font-size: 16px; color: #e0e0e0; border-radius: 8px; transition: all 0.2s;
@@ -207,6 +186,15 @@
 
 <div class="main-layout">
     <div class="container">
+        <!-- ↗️ 右上に配置された単語一覧ON/OFFスイッチ -->
+        <div class="top-right-toggle">
+            <span>一覧</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="global-list-toggle" onchange="syncListToggle(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+
         <div id="setup-screen">
             <h1>英単語クイズ</h1>
             
@@ -216,22 +204,20 @@
                 <div class="ideal-line">
                     <label><input type="radio" name="quiz-mode" value="normal" checked> 順番通り</label>
                     <label><input type="radio" name="quiz-mode" value="random"> ランダム</label>
-                    <label style="color: #e67e22; font-weight: bold;"><input type="radio" name="quiz-mode" value="japanMode"> New! 日本語入力</label>
+                    <label style="color: #e67e22; font-weight: bold;"><input type="radio" name="quiz-mode" value="japanMode"> 日本語入力</label>
                     <label style="color: #3498db; font-weight: bold;"><input type="radio" name="quiz-mode" value="choice"> 4択</label>
                 </div>
 
                 <div class="ideal-line" style="border-top: 1px solid #333; padding-top: 12px;">
                     <span>範囲:</span>
-                    <label><input type="checkbox" class="range-chkbx" value="Day5" checked onchange="updateWordList()"> Day 5</label>
-                    <label><input type="checkbox" class="range-chkbx" value="Day6" checked onchange="updateWordList()"> Day 6</label>
-                </div>
-                
-                <div class="ideal-line" style="border-top: 1px solid #333; padding-top: 12px; font-size: 11px; color: #888;">
-                    <span>右側から単語一覧をスライド表示する</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="setup-list-toggle" onchange="syncListToggle(this.checked)">
-                        <span class="slider"></span>
-                    </label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day5" onchange="updateWordList()"> Day 5</label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day6" onchange="updateWordList()"> Day 6</label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day7" onchange="updateWordList()"> Day 7</label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day8" onchange="updateWordList()"> Day 8</label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day9" onchange="updateWordList()"> Day 9</label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day10" onchange="updateWordList()"> Day 10</label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day11" checked onchange="updateWordList()"> Day 11</label>
+                    <label><input type="checkbox" class="range-chkbx" value="Day12" checked onchange="updateWordList()"> Day 12</label>
                 </div>
             </div>
         </div>
@@ -239,13 +225,6 @@
         <div id="quiz-screen" class="quiz-section">
             <div class="quiz-header">
                 <div class="progress" id="progress-text">0 / 0</div>
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #a0a0a0;">
-                    <span>一覧表示</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="quiz-list-toggle" onchange="syncListToggle(this.checked)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
             </div>
             
             <div class="question" id="question-text">意味</div>
@@ -256,21 +235,12 @@
             
             <div class="result-message" id="result-text"></div>
             <button id="action-btn" class="primary-btn" onclick="handleNext()">判定 (Enter)</button>
-            <button id="home-action-btn" class="home-btn" onclick="goHome()">🏠 設定に戻る</button>
+            <button id="home-action-btn" class="home-btn" onclick="goHome()">🏠 ホーム</button>
             <div class="hint" id="quiz-hint-text">Enterで進みます</div>
         </div>
     </div>
 
     <div class="word-list-container" id="word-list-box">
-        
-        <div class="miss-train-box">
-            <div style="font-size: 12px; color: #aaa; font-weight: bold;">🔥 蓄積された総ミスライフ</div>
-            <div class="miss-train-count" id="total-miss-count">0</div>
-            <button class="miss-train-btn" id="start-miss-train-btn" onclick="startMissTraining()" style="display:none;">☠️ ミス特訓モード起動</button>
-            <br>
-            <button class="miss-reset-btn" onclick="resetMissCounters()">🔄 データをクリア</button>
-        </div>
-
         <div class="word-list-title">📖 対象の単語一覧</div>
         <div id="word-list-content"></div>
     </div>
@@ -297,6 +267,63 @@ const wordData = {
         { en: "gather", ja: "集まる" }, { en: "handle", ja: "を扱う" },
         { en: "behave", ja: "振る舞う" }, { en: "direct", ja: "を向ける" },
         { en: "destroy", ja: "～を破壊する" }, { en: "excape", ja: "逃げる" }
+    ],
+    Day7: [
+        { en: "smell", ja: "～のにおいがする" }, { en: "freeze", ja: "凍る" },
+        { en: "aim", ja: "～をねらう" }, { en: "belong", ja: "属する" },
+        { en: "intend", ja: "～するつもりである" }, { en: "divide", ja: "～を分ける" },
+        { en: "repair", ja: "～を修理する" }, { en: "relax", ja: "くつろぐ" },
+        { en: "announce", ja: "～を発表する" }, { en: "rush", ja: "急ぎ足で行く" },
+        { en: "deliver", ja: "～を配達する" }, { en: "afford", ja: "～する余裕がある" },
+        { en: "beat", ja: "～を打ち負かす" }, { en: "strike", ja: "～を打つ" },
+        { en: "blame", ja: "～を非難する" }, { en: "steal", ja: "～を盗む" }
+    ],
+    Day8: [
+        { en: "lay", ja: "～を横たえる" }, { en: "hire", ja: "～を雇う" },
+        { en: "hang", ja: "～をかける" }, { en: "recover", ja: "回復する" },
+        { en: "tie", ja: "～を結びつける" }, { en: "borrow", ja: "～を借りる" },
+        { en: "reply", ja: "返事をする" }, { en: "hurt", ja: "～を傷つける" },
+        { en: "reserve", ja: "～を予約する" }
+    ],
+    Day9: [
+        { en: "suit", ja: "～に好都合である" }, { en: "complain", ja: "不満を言う" },
+        { en: "arrange", ja: "を取り決める" }, { en: "hate", ja: "～ひどく嫌う" },
+        { en: "celebrate", ja: "を祝う" }, { en: "permit", ja: "～を許可する" },
+        { en: "rule", ja: "～を許可する" }, { en: "dislike", ja: "～を支配する" },
+        { en: "admire", ja: "～に感心する" }, { en: "owe", ja: "を借りる" },
+        { en: "scream", ja: "悲鳴を上げる" }, { en: "punish", ja: "～を罰する" },
+        { en: "assist", ja: "～を手伝う" }, { en: "blow", ja: "吹く" },
+        { en: "bend", ja: "～を曲げる" }, { en: "roll", ja: "を転がす" }
+    ],
+    Day10: [
+        { en: "burst", ja: "爆破する" }, { en: "weigh", ja: "～の重さがある" },
+        { en: "float", ja: "浮かぶ" }, { en: "broadcast", ja: "を放送する" },
+        { en: "defend", ja: "～を守る" }, { en: "awake", ja: "目が覚める" },
+        { en: "stretch", ja: "をいっぱいに伸ばす" }, { en: "pour", ja: "～を注ぐ" },
+        { en: "swallow", ja: "を飲み込む" }, { en: "wipe", ja: "を拭く" },
+        { en: "sweep", ja: "～を掃除する" }, { en: "polish", ja: "～を磨く" },
+        { en: "nod", ja: "うなずく" }, { en: "pray", ja: "祈る" },
+        { en: "forgive", ja: "～を許す" }, { en: "drown", ja: "溺れ死ぬ" }
+    ],
+    Day11: [
+        { en: "way", ja: "やり方" }, { en: "part", ja: "部分" },
+        { en: "brain", ja: "脳" }, { en: "experience", ja: "経験" },
+        { en: "result", ja: "結果" }, { en: "reason", ja: "理由" },
+        { en: "cause", ja: "原因" }, { en: "effect", ja: "結果（原因の直接的な）" },
+        { en: "form", ja: "用紙" }, { en: "education", ja: "教育" },
+        { en: "ability", ja: "能力" }, { en: "sense", ja: "感覚" },
+        { en: "product", ja: "製品" }, { en: "condition", ja: "状態" },
+        { en: "view", ja: "意見" }, { en: "memory", ja: "記憶" }
+    ],
+    Day12: [
+        { en: "law", ja: "法律" }, { en: "nature", ja: "自然" },
+        { en: "care", ja: "世話" }, { en: "break", ja: "休憩" },
+        { en: "amount", ja: "総額" }, { en: "limit", ja: "限界" },
+        { en: "line", ja: "列" }, { en: "effort", ja: "努力" },
+        { en: "force", ja: "力" }, { en: "role", ja: "役割" },
+        { en: "industry", ja: "産業" }, { en: "rate", ja: "割合" },
+        { en: "knowledge", ja: "知識" }, { en: "paper", ja: "新聞" },
+        { en: "period", ja: "期間" }, { en: "sign", ja: "兆候" }
     ]
 };
 
@@ -307,37 +334,15 @@ let currentIndex = 0;
 let isAnswered = false;
 let currentScreen = "setup"; 
 let quizFinished = false; 
-let isMissTrainingMode = false; 
 let activeMode = "normal"; // "normal", "random", "japanMode", "choice"
 let currentChoices = [];
 
-let missCounters = JSON.parse(localStorage.getItem('missCounters_v5')) || {};
-
 window.onload = function() {
-    initMissCounters();
     updateWordList();
 };
 
-function initMissCounters() {
-    Object.keys(wordData).forEach(day => {
-        wordData[day].forEach(word => {
-            if (missCounters[word.en] === undefined) missCounters[word.en] = 0;
-        });
-    });
-}
-
-function resetMissCounters() {
-    if (confirm("これまでの累計ミスデータをリセットしてよろしいですか？")) {
-        missCounters = {};
-        initMissCounters();
-        localStorage.setItem('missCounters_v5', JSON.stringify(missCounters));
-        updateWordList();
-    }
-}
-
 function syncListToggle(isOpen) {
-    document.getElementById('setup-list-toggle').checked = isOpen;
-    document.getElementById('quiz-list-toggle').checked = isOpen;
+    document.getElementById('global-list-toggle').checked = isOpen;
     const wordListBox = document.getElementById('word-list-box');
     if (isOpen) wordListBox.classList.add('open');
     else wordListBox.classList.remove('open');
@@ -346,13 +351,6 @@ function syncListToggle(isOpen) {
 function updateWordList() {
     const content = document.getElementById('word-list-content');
     content.innerHTML = "";
-    let totalMissCount = 0;
-    
-    Object.keys(missCounters).forEach(key => { totalMissCount += missCounters[key]; });
-    document.getElementById('total-miss-count').innerText = totalMissCount;
-    
-    const trainBtn = document.getElementById('start-miss-train-btn');
-    trainBtn.style.display = totalMissCount > 0 ? 'inline-block' : 'none';
 
     const checkboxes = document.querySelectorAll('.range-chkbx');
     let hasData = false;
@@ -362,15 +360,13 @@ function updateWordList() {
             hasData = true;
             const header = document.createElement('div');
             header.className = 'day-header';
-            header.innerText = cb.value === "Day5" ? "Day 5" : "Day 6";
+            header.innerText = cb.value.replace("Day", "Day ");
             content.appendChild(header);
 
             wordData[cb.value].forEach(word => {
                 const item = document.createElement('div');
                 item.className = 'word-item';
-                const missValue = missCounters[word.en] || 0;
-                const badgeHtml = missValue > 0 ? `<span class="miss-badge">×${missValue}</span>` : '';
-                item.innerHTML = `<span class="en">${word.en}</span><span class="ja">${word.ja}</span>${badgeHtml}`;
+                item.innerHTML = `<span class="en">${word.en}</span><span class="ja">${word.ja}</span>`;
                 content.appendChild(item);
             });
         }
@@ -381,27 +377,8 @@ function updateWordList() {
     }
 }
 
-function startMissTraining() {
-    currentQuizList = [];
-    isMissTrainingMode = true;
-    
-    const selectedMode = document.querySelector('input[name="quiz-mode"]:checked').value;
-    // 日本語入力中なら日本語入力のまま、それ以外(通常・ランダム・4択)ならランダムにする
-    activeMode = (selectedMode === "japanMode" || selectedMode === "choice") ? selectedMode : "random";
-
-    Object.keys(wordData).forEach(day => {
-        wordData[day].forEach(word => {
-            const count = missCounters[word.en] || 0;
-            for(let i = 0; i < count; i++) { currentQuizList.push({...word}); }
-        });
-    });
-    currentQuizList.sort(() => Math.random() - 0.5);
-    launchQuiz();
-}
-
 function startQuiz() {
     currentQuizList = [];
-    isMissTrainingMode = false;
     
     activeMode = document.querySelector('input[name="quiz-mode"]:checked').value;
 
@@ -423,7 +400,7 @@ function launchQuiz() {
     currentIndex = 0; isAnswered = false; quizFinished = false; currentScreen = "quiz";
     document.getElementById('setup-screen').style.display = 'none';
     document.getElementById('quiz-screen').style.display = 'block';
-    document.getElementById('home-action-btn').innerText = "🏠 設定に戻る";
+    document.getElementById('home-action-btn').innerText = "🏠 ホーム";
     showQuestion();
 }
 
@@ -439,37 +416,31 @@ function showQuestion() {
     document.getElementById('action-btn').innerText = activeMode !== 'choice' ? "判定 (Enter)" : "スキップする (Enter)";
 
     if (activeMode === "normal" || activeMode === "random") {
-        // ⌨️ 通常の英単語タイピング
         inputField.style.display = 'block';
         choicesContainer.style.display = 'none';
         inputField.placeholder = "英単語を入力してEnter";
         hintText.innerText = "※判定後も打てます。もう一度Enterで次へ";
         
-        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (英語入力) " : "";
-        document.getElementById('question-text').innerText = prefix + currentWord.ja;
+        document.getElementById('question-text').innerText = currentWord.ja;
         inputField.value = "";
         inputField.focus();
         
     } else if (activeMode === "japanMode") {
-        // ⌨️ New! 日本語タイピングモード
         inputField.style.display = 'block';
         choicesContainer.style.display = 'none';
         inputField.placeholder = "日本語の意味を入力してEnter";
         hintText.innerText = "※「～」や「...」などの記号は省略して入力しても正解になります";
         
-        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (日本語入力) " : "";
-        document.getElementById('question-text').innerText = prefix + currentWord.en;
+        document.getElementById('question-text').innerText = currentWord.en;
         inputField.value = "";
         inputField.focus();
         
     } else if (activeMode === "choice") {
-        // 🔢 4択モード
         inputField.style.display = 'none';
         choicesContainer.style.display = 'grid';
         hintText.innerText = "※正しい日本語を選んでください (数字キー1〜4でも選べます)";
         
-        let prefix = isMissTrainingMode ? "⚠️ミス特訓 (4択) " : "";
-        document.getElementById('question-text').innerText = prefix + currentWord.en;
+        document.getElementById('question-text').innerText = currentWord.en;
         
         generateChoices(currentWord.ja);
     }
@@ -507,26 +478,16 @@ function selectChoice(index) {
     if (selectedJa === currentWord.ja) {
         document.getElementById(`choice-${index}`).classList.add('selected-correct');
         resultText.innerHTML = '<span class="correct">⭕ 正解！</span>';
-        if (missCounters[currentWord.en] > 0) {
-            missCounters[currentWord.en]--;
-            localStorage.setItem('missCounters_v5', JSON.stringify(missCounters));
-        }
     } else {
         document.getElementById(`choice-${index}`).classList.add('selected-incorrect');
         resultText.innerHTML = `<span class="incorrect">❌ 不正解...</span>`;
         buttons.forEach((btn, idx) => {
             if (currentChoices[idx] === currentWord.ja) btn.classList.add('selected-correct');
         });
-
-        if (missCounters[currentWord.en] === undefined) missCounters[currentWord.en] = 0;
-        missCounters[currentWord.en]++;
-        localStorage.setItem('missCounters_v5', JSON.stringify(missCounters));
     }
     actionBtn.innerText = "次へ進む (Enter)";
-    updateWordList();
 }
 
-// 日本語の判定を優しくする補助関数 (～ や ... やスペース、大文字小文字を除去)
 function cleanJapanese(str) {
     return str.replace(/[～…\.]/g, "").replace(/\s+/g, "").trim();
 }
@@ -539,54 +500,38 @@ function handleNext() {
     const currentWord = currentQuizList[currentIndex];
 
     if (activeMode !== "choice") {
-        // タイピング判定（英語 or 日本語）
         if (!isAnswered) {
             let isCorrect = false;
             const userAnswer = inputField.value.trim();
 
             if (activeMode === "japanMode") {
-                // 日本語入力モードの判定
                 const cleanUser = cleanJapanese(userAnswer);
                 const cleanCorrect = cleanJapanese(currentWord.ja);
                 isCorrect = (cleanUser === cleanCorrect);
             } else {
-                // 通常・ランダム（英語入力）の判定
                 isCorrect = (userAnswer.toLowerCase() === currentWord.en.toLowerCase());
             }
 
             if (isCorrect) {
                 resultText.innerHTML = '<span class="correct">⭕ 正解！</span>';
-                if (missCounters[currentWord.en] > 0) {
-                    missCounters[currentWord.en]--;
-                    localStorage.setItem('missCounters_v5', JSON.stringify(missCounters));
-                }
             } else {
                 const answerDisplay = activeMode === "japanMode" ? currentWord.ja : currentWord.en;
                 resultText.innerHTML = `<span class="incorrect">❌ 不正解...</span><br><span style="color: #b0b0b0;">正解:</span> <strong>${answerDisplay}</strong>`;
-                if (missCounters[currentWord.en] === undefined) missCounters[currentWord.en] = 0;
-                missCounters[currentWord.en]++;
-                localStorage.setItem('missCounters_v5', JSON.stringify(missCounters));
             }
             actionBtn.innerText = "次へ進む (Enter)";
             isAnswered = true;
-            updateWordList();
         } else {
             advanceQuiz();
         }
     } else {
-        // 4択時のスキップ処理
         if (!isAnswered) {
             isAnswered = true;
-            resultText.innerHTML = `<span class="incorrect">⏭️ スキップ（ミス+1）</span>`;
+            resultText.innerHTML = `<span class="incorrect">⏭️ スキップ</span>`;
             const buttons = document.querySelectorAll('.choice-btn');
             buttons.forEach((btn, idx) => {
                 if (currentChoices[idx] === currentWord.ja) btn.classList.add('selected-correct');
             });
-            if (missCounters[currentWord.en] === undefined) missCounters[currentWord.en] = 0;
-            missCounters[currentWord.en]++;
-            localStorage.setItem('missCounters_v5', JSON.stringify(missCounters));
             actionBtn.innerText = "次へ進む (Enter)";
-            updateWordList();
         } else {
             advanceQuiz();
         }
@@ -603,7 +548,7 @@ function advanceQuiz() {
         document.getElementById('choices-container').style.display = 'none';
         document.getElementById('question-text').innerText = "🎉 終了！";
         document.getElementById('result-text').innerHTML = "お疲れ様でした！<br><span style='font-size:14px; color:#aaa;'>Enterでホームへ戻ります。</span>";
-        document.getElementById('action-btn').innerText = "設定画面に戻る (Enter)";
+        document.getElementById('action-btn').innerText = "ホームに戻る (Enter)";
         document.getElementById('action-btn').focus();
     }
 }
@@ -615,7 +560,6 @@ function goHome() {
     document.getElementById('setup-screen').style.display = 'block';
 }
 
-// ⌨️ キーボードコントロール
 window.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         if (currentScreen === "setup") {
